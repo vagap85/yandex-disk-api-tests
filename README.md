@@ -124,9 +124,6 @@ pytest --cov=api --cov-report=term --cov-report=html
 📁 Структура проекта
 text
 yandex-disk-api-tests/
-├── .github/                      # GitHub Actions
-│   └── workflows/
-│       └── test.yml              # CI/CD конфигурация
 ├── api/                           # API клиент
 │   ├── __init__.py
 │   ├── client.py                  # Основной клиент
@@ -150,7 +147,7 @@ yandex-disk-api-tests/
 ├── pytest.ini                        # Конфигурация pytest
 └── README.md                         # Документация
 🧪 Тестовые сценарии
-GET методы (5 тестов)
+**GET методы (5 тестов)
 ✅ Получение информации о диске
 
 ✅ Получение метаинформации о ресурсе
@@ -161,7 +158,7 @@ GET методы (5 тестов)
 
 ✅ Обработка несуществующих ресурсов
 
-POST методы (4 теста)
+**POST методы (4 теста)
 ✅ Копирование папок
 
 ✅ Перемещение папок
@@ -170,7 +167,7 @@ POST методы (4 теста)
 
 ✅ Обработка несуществующих ресурсов
 
-PUT методы (5 тестов)
+**PUT методы (5 тестов)
 ✅ Создание папок
 
 ✅ Создание существующих папок
@@ -181,7 +178,7 @@ PUT методы (5 тестов)
 
 ✅ Отмена публикации
 
-DELETE методы (6 тестов)
+**DELETE методы (6 тестов)
 ✅ Удаление папок
 
 ✅ Удаление несуществующих ресурсов
@@ -211,39 +208,7 @@ text
 ├───────────────┼─────────────┼──────────┤
 │ ИТОГО         │ 20          │ 100%     │
 └───────────────┴─────────────┴──────────┘
-🔄 CI/CD
-Проект настроен для автоматического запуска тестов через GitHub Actions при каждом push в ветку main.
 
-Файл конфигурации: .github/workflows/test.yml
-
-yaml
-name: Tests
-
-on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
-
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.9", "3.10", "3.11"]
-
-    steps:
-    - uses: actions/checkout@v3
-    - name: Install uv
-      uses: astral-sh/setup-uv@v3
-    - name: Set up Python
-      run: uv python install ${{ matrix.python-version }}
-    - name: Install dependencies
-      run: uv pip install -e ".[dev]"
-    - name: Test with pytest
-      env:
-        YANDEX_DISK_TOKEN: ${{ secrets.YANDEX_DISK_TOKEN }}
-      run: pytest -v
 🤝 Контакты
 GitHub: vagap85
 
