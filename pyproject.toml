@@ -23,18 +23,43 @@ dev = [
 requires = ["setuptools>=68.0.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
-# Отключаем автоматическое обнаружение пакетов
+# Явное указание структуры пакета
 [tool.setuptools]
-packages = []
+packages = ["api", "config", "utils"]
 
+[tool.setuptools.package-dir]
+api = "api"
+config = "config"
+utils = "utils"
+
+# Конфигурация pytest - используем ТОЛЬКО один из вариантов
 [tool.pytest.ini_options]
 minversion = "8.0"
 addopts = "-v -s --strict-markers"
-testpaths = ["tests"]
+testpaths = [
+    "tests",
+]
 python_files = "test_*.py"
 python_classes = "Test*"
 python_functions = "test_*"
+markers = [
+    "get: GET endpoint tests",
+    "post: POST endpoint tests", 
+    "put: PUT endpoint tests",
+    "delete: DELETE endpoint tests",
+]
 
-# Добавляем пути для импорта
-[tool.pytest]
-pythonpath = ["."]
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+select = ["E", "F", "I", "N", "W"]
+ignore = []
+
+[tool.black]
+line-length = 100
+target-version = ["py39"]
+
+[tool.mypy]
+python_version = "3.9"
+ignore_missing_imports = true
+strict = true
