@@ -45,20 +45,18 @@
 
 ### Клонирование репозитория
 
-```bash
+```
 git clone https://github.com/vagap85/yandex-disk-api-tests.git
 cd yandex-disk-api-tests
 Установка uv (если не установлен)
 macOS/Linux:
 
-bash
+
 curl -LsSf https://astral.sh/uv/install.sh | sh
 Windows (PowerShell):
 
-powershell
 powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
 Создание виртуального окружения и установка зависимостей
-bash
 # Создание виртуального окружения
 uv venv
 
@@ -82,7 +80,7 @@ uv pip install -e ".[dev]"  # для разработки
 Скопируйте полученный токен
 
 Настройка переменных окружения
-bash
+
 # Создайте файл .env из примера
 cp .env.example .env
 
@@ -91,35 +89,35 @@ YANDEX_DISK_TOKEN=ваш_токен_здесь
 YANDEX_DISK_API_URL=https://cloud-api.yandex.net/v1/disk
 🚀 Запуск тестов
 Все тесты
-bash
 pytest
+
 С подробным выводом
-bash
 pytest -v
+
 По группам методов
-bash
-# GET методы
+
+## GET методы
 pytest -m get -v
 
-# POST методы
+## POST методы
 pytest -m post -v
 
-# PUT методы
+## PUT методы
 pytest -m put -v
 
-# DELETE методы
+## DELETE методы
 pytest -m delete -v
 По конкретным файлам
-bash
+
 pytest tests/test_get_methods.py -v
 pytest tests/test_post_methods.py -v
 pytest tests/test_put_methods.py -v
 pytest tests/test_delete_methods.py -v
 Параллельный запуск
-bash
+
 pytest -n auto -v
 С отчетом о покрытии
-bash
+
 pytest --cov=api --cov-report=term --cov-report=html
 📁 Структура проекта
 text
@@ -146,8 +144,9 @@ yandex-disk-api-tests/
 ├── pyproject.toml                    # Зависимости проекта
 ├── pytest.ini                        # Конфигурация pytest
 └── README.md                         # Документация
+
 🧪 Тестовые сценарии
-**GET методы (5 тестов)
+##GET методы (5 тестов)
 ✅ Получение информации о диске
 
 ✅ Получение метаинформации о ресурсе
@@ -158,7 +157,7 @@ yandex-disk-api-tests/
 
 ✅ Обработка несуществующих ресурсов
 
-**POST методы (4 теста)
+##POST методы (4 теста)
 ✅ Копирование папок
 
 ✅ Перемещение папок
@@ -167,7 +166,7 @@ yandex-disk-api-tests/
 
 ✅ Обработка несуществующих ресурсов
 
-**PUT методы (5 тестов)
+##PUT методы (5 тестов)
 ✅ Создание папок
 
 ✅ Создание существующих папок
@@ -178,7 +177,7 @@ yandex-disk-api-tests/
 
 ✅ Отмена публикации
 
-**DELETE методы (6 тестов)
+##DELETE методы (6 тестов)
 ✅ Удаление папок
 
 ✅ Удаление несуществующих ресурсов
@@ -212,7 +211,7 @@ text
 🤝 Контакты
 GitHub: vagap85
 
-Email: ваш.email@example.com
+Email: vagap85@gmail.com
 
 📄 Лицензия
 Этот проект распространяется под лицензией MIT. Подробности в файле LICENSE.
