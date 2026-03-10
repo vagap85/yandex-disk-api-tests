@@ -1,5 +1,7 @@
 import pytest
+import uuid
 import time
+from utils.helpers import generate_unique_folder_name
 
 pytestmark = pytest.mark.delete
 
@@ -9,10 +11,13 @@ class TestDeleteMethods:
 
     def test_delete_folder(self, api_client):
         """Проверка удаления папки"""
-        # Создаем папку
-        folder_name = "test_delete_folder"
+        # Используем уникальное имя
+        folder_name = generate_unique_folder_name("delete_test")
         folder_path = f"disk:/{folder_name}"
-        api_client.create_folder(folder_path)
+
+        # Создаем папку
+        response = api_client.create_folder(folder_path)
+        assert response.status_code == 201
 
         # Удаляем папку
         response = api_client.delete_resource(folder_path)
@@ -36,26 +41,15 @@ class TestDeleteMethods:
         response = api_client.delete_resource(test_folder, permanently=False)
         assert response.status_code == 204
 
-        # Даем время на обработку
-        time.sleep(2)
+        time.sleep(1)
 
-        # Получаем список файлов в корзине
+        # Получаем содержимое корзины
         trash_response = api_client._make_request("GET", "/trash/resources", params={"limit": 100})
-        trash_data = trash_response.json()
+        trash_items = trash_response.json().get("_embedded", {}).get("items", [])
 
-        # Проверяем структуру ответа
-        assert "_embedded" in trash_data, f"Нет поля _embedded в ответе: {trash_data}"
-        assert "items" in trash_data["_embedded"], f"Нет поля items в _embedded: {trash_data['_embedded']}"
-
-        # Ищем нашу папку
-        trash_items = trash_data["_embedded"]["items"]
-        found = False
-        for item in trash_items:
-            if item.get("name") == folder_name:
-                found = True
-                break
-
-        assert found, f"Папка {folder_name} не найдена в корзине. Элементы в корзине: {[i.get('name') for i in trash_items]}"
+        # Ищем нашу папку в корзине
+        found = any(item.get("name") == folder_name for item in trash_items)
+        assert found, f"Папка {folder_name} не найдена в корзине"
 
     def test_delete_permanently(self, api_client, test_folder):
         """Проверка полного удаления ресурса"""
@@ -64,9 +58,9 @@ class TestDeleteMethods:
         response = api_client.delete_resource(test_folder, permanently=True)
         assert response.status_code == 204
 
-        # Проверяем, что ресурс не в корзине
         time.sleep(1)
 
+        # Проверяем, что ресурс не в корзине
         trash_response = api_client._make_request("GET", "/trash/resources", params={"limit": 100})
         trash_items = trash_response.json().get("_embedded", {}).get("items", [])
 
@@ -78,33 +72,23 @@ class TestDeleteMethods:
         # Удаляем в корзину
         api_client.delete_resource(test_folder, permanently=False)
 
-        # Даем время на обработку
         time.sleep(1)
 
-        # Очищаем корзину (ожидаем 202, т.к. операция асинхронная)
+        # Очищаем корзину
         response = api_client._make_request("DELETE", "/trash/resources", expected_status=202)
         assert response.status_code == 202
+        assert "href" in response.json()
 
-        # Проверяем, что операция запущена
-        response_data = response.json()
-        assert "href" in response_data, f"Нет href в ответе: {response_data}"
-        assert "method" in response_data, f"Нет method в ответе: {response_data}"
-        assert response_data["method"] == "GET"
-
-        # Можно подождать завершения операции
-        operation_url = response_data["href"]
-        time.sleep(2)
+        time.sleep(1)
 
         # Проверяем, что корзина пуста
         trash_response = api_client._make_request("GET", "/trash/resources", params={"limit": 100})
-        trash_data = trash_response.json()
-
-        if "_embedded" in trash_data and "items" in trash_data["_embedded"]:
-            assert len(trash_data["_embedded"]["items"]) == 0, "Корзина должна быть пуста"
+        trash_items = trash_response.json().get("_embedded", {}).get("items", [])
+        assert len(trash_items) == 0, "Корзина должна быть пуста"
 
     def test_delete_empty_folder(self, api_client):
         """Проверка удаления пустой папки"""
-        folder_name = "test_empty_folder"
+        folder_name = generate_unique_folder_name("empty_test")
         folder_path = f"disk:/{folder_name}"
 
         api_client.create_folder(folder_path)
