@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.env
+.venv
+*.egg-info/
+dist/
+build/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Test reports
+test-results/
+allure-results/
+htmlcov/
+.pytest_cache/
+
+# Environment variables
+.env.local
+*.token
