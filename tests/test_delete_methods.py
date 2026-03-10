@@ -1,5 +1,4 @@
 import pytest
-import uuid
 import time
 from utils.helpers import generate_unique_folder_name
 
@@ -11,7 +10,6 @@ class TestDeleteMethods:
 
     def test_delete_folder(self, api_client):
         """Проверка удаления папки"""
-        # Используем уникальное имя
         folder_name = generate_unique_folder_name("delete_test")
         folder_path = f"disk:/{folder_name}"
 
@@ -41,7 +39,7 @@ class TestDeleteMethods:
         response = api_client.delete_resource(test_folder, permanently=False)
         assert response.status_code == 204
 
-        time.sleep(1)
+        time.sleep(2)
 
         # Получаем содержимое корзины
         trash_response = api_client._make_request("GET", "/trash/resources", params={"limit": 100})
@@ -58,7 +56,7 @@ class TestDeleteMethods:
         response = api_client.delete_resource(test_folder, permanently=True)
         assert response.status_code == 204
 
-        time.sleep(1)
+        time.sleep(2)
 
         # Проверяем, что ресурс не в корзине
         trash_response = api_client._make_request("GET", "/trash/resources", params={"limit": 100})
@@ -69,22 +67,33 @@ class TestDeleteMethods:
 
     def test_clear_trash(self, api_client, test_folder):
         """Проверка очистки корзины"""
-        # Удаляем в корзину
-        api_client.delete_resource(test_folder, permanently=False)
+        # Удаляем в корзину с повторными попытками при блокировке
+        max_retries = 3
+        for attempt in range(max_retries):
+            try:
+                api_client.delete_resource(test_folder, permanently=False)
+                break
+            except AssertionError as e:
+                if "423" in str(e) and attempt < max_retries - 1:
+                    print(f"⚠️ Ресурс заблокирован, повтор через 2с (попытка {attempt + 1}/{max_retries})")
+                    time.sleep(2)
+                    continue
+                else:
+                    raise e
 
-        time.sleep(1)
+        time.sleep(2)  # Даем время на обработку
 
         # Очищаем корзину
         response = api_client._make_request("DELETE", "/trash/resources", expected_status=202)
         assert response.status_code == 202
         assert "href" in response.json()
 
-        time.sleep(1)
+        time.sleep(3)  # Ждем очистки
 
         # Проверяем, что корзина пуста
         trash_response = api_client._make_request("GET", "/trash/resources", params={"limit": 100})
         trash_items = trash_response.json().get("_embedded", {}).get("items", [])
-        assert len(trash_items) == 0, "Корзина должна быть пуста"
+        assert len(trash_items) == 0, f"Корзина должна быть пуста, но содержит {len(trash_items)} элементов"
 
     def test_delete_empty_folder(self, api_client):
         """Проверка удаления пустой папки"""
